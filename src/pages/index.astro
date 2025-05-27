@@ -1,42 +1,46 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Navigation from '../components/Navigation.astro';
-import HeroSection from '../components/HeroSection.astro';
-import BottomNavigation from '../components/BottomNavigation.astro';
-import ProjectsSidebar from '../components/ProjectsSidebar.astro';
-import ProjectsGrid from '../components/ProjectsGrid.astro';
-import { projects } from '../data/projects.js';
+import Layout from "../layouts/Layout.astro";
+import Navigation from "../components/Navigation.astro";
+import HeroSection from "../components/HeroSection.astro";
+import BottomNavigation from "../components/BottomNavigation.astro";
+import ProjectsSidebar from "../components/ProjectsSidebar.astro";
+import ProjectsGrid from "../components/ProjectsGrid.astro";
+import { projects } from "../data/projects.js";
 ---
 
 <Layout title="IND Design Studio">
-  <Navigation />
-  <HeroSection />
-  <BottomNavigation />
-  
-  <!-- Fullscreen Project Image Animation Container -->
-  <div class="fixed top-0 left-0 w-screen h-screen pointer-events-none z-[999]">
-    <div 
-      class="absolute top-full left-0 w-screen h-screen overflow-hidden opacity-0 transition-all duration-300 ease-out will-change-transform"
-      id="animatedProjectImage"
-    >
-      <img 
-        src={projects[0]?.image?.src} 
-        alt={projects[0]?.name}
-        id="mainAnimatedImage"
-        class="w-full h-full object-cover block"
-      />
+  <div class="container px-6 lg:px-8">
+    <Navigation />
+    <HeroSection />
+    <BottomNavigation />
+
+    <!-- Fullscreen Project Image Animation Container -->
+    <div class="fixed top-0 left-0 w-screen h-screen pointer-events-none z-[999]">
+      <div
+        class="absolute top-full left-0 w-screen h-screen overflow-hidden opacity-0 transition-all duration-300 ease-out will-change-transform"
+        id="animatedProjectImage">
+        <img
+          src={projects[0]?.image?.src}
+          alt={projects[0]?.name}
+          id="mainAnimatedImage"
+          class="w-full h-full object-cover block"
+        />
+      </div>
     </div>
+
+    <div class="h-[120vh] bg-white" id="scrollSpacer"></div>
+
+    <section class="min-h-screen relative flex justify-between pt-4">
+      <ProjectsSidebar />
+      <!-- <div class="flex w-full"/> -->
+      <div class="flex w-full grow">
+      <ProjectsGrid />
+    </div>
+    </section>
   </div>
-  
-  <div class="h-[110vh] bg-white" id="scrollSpacer"></div>
-  
-  <section class="min-h-screen relative flex pt-[12vh]">
-    <ProjectsSidebar />
-    <ProjectsGrid />
-  </section>
 </Layout>
 
 <!-- Load TypeScript module -->
 <script>
-  import('../scripts/main/index.ts');
+  import("../scripts/main/index.ts");
 </script>

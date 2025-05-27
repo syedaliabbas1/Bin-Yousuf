@@ -4,58 +4,30 @@ import { getProjectCounts } from '../data/projects.js';
 const projectCounts = getProjectCounts();
 ---
 
-<nav class="nav">
-  <div class="nav-left">
-    <a href="#projects" class="nav-link">Projects</a>
+<nav class="
+  fixed top-0 left-0 right-0 z-50
+  flex justify-between items-center
+  bg-white bg-opacity-95 backdrop-blur-sm
+  py-4 px-6
+  lg:px-8
+">
+  <div class="flex">
+    <a href="#projects" class="text-sm font-normal text-gray-700 hover:text-black transition-colors duration-300">
+      Projects
+    </a>
   </div>
-  <div class="nav-right">
-    <a href="#emaar" class="nav-link">Emaar</a>
-    <a href="#hmr" class="nav-link">HMR Waterfront</a>
-    <a href="#about" class="nav-link">About</a>
-    <a href="#contact" class="nav-link">Contact</a>
+  <div class="flex space-x-6 md:space-x-8">
+    <a href="#emaar" class="text-sm font-normal text-gray-700 hover:text-black transition-colors duration-300">
+      Emaar
+    </a>
+    <a href="#hmr" class="text-sm font-normal text-gray-700 hover:text-black transition-colors duration-300">
+      HMR Waterfront
+    </a>
+    <a href="#about" class="text-sm font-normal text-gray-700 hover:text-black transition-colors duration-300">
+      About
+    </a>
+    <a href="#contact" class="text-sm font-normal text-gray-700 hover:text-black transition-colors duration-300">
+      Contact
+    </a>
   </div>
 </nav>
-
-<style>
-  .nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 40px;
-    z-index: 100;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-  }
-
-  .nav-left,
-  .nav-right {
-    display: flex;
-    gap: 30px;
-  }
-
-  .nav-link {
-    text-decoration: none;
-    color: #666;
-    font-size: 14px;
-    font-weight: 400;
-    transition: color 0.3s ease;
-  }
-
-  .nav-link:hover {
-    color: #000;
-  }
-
-  @media (max-width: 768px) {
-    .nav {
-      padding: 15px 20px;
-    }
-
-    .nav-right {
-      gap: 15px;
-    }
-  }
-</style>

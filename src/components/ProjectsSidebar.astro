@@ -22,22 +22,16 @@ import { projects } from '../data/projects.js';
 
 <style>
   .projects-sidebar {
-    position: fixed;
-    left: 5vw;
+    position: sticky;
+    left: 0vw;
     top: 15vh;
-    width: 400px;
-    max-height: 70vh;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    border-radius: 16px;
-    padding: 30px 25px;
+    width: 300px;
     z-index: 5;
     opacity: 0;
     transform: translateX(-100px);
     will-change: opacity, transform;
     transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
   }
 
   .projects-sidebar.visible {

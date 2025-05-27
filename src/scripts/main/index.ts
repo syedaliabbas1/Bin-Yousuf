@@ -82,7 +82,7 @@ class ProjectAnimationController {
       .to(this.elements.animatedProjectImage, {
         top: '0vh',
         opacity: 1,
-        duration: 1,
+        duration: 0.5,
         ease: "power2.out"
       })
       .to(this.elements.animatedProjectImage, {
@@ -92,7 +92,7 @@ class ProjectAnimationController {
         height: '60vh',
         borderRadius: '12px',
         opacity: 0,
-        duration: 1,
+        duration: 0.5,
         ease: "power2.out"
       });
   }
@@ -164,7 +164,7 @@ class ProjectAnimationController {
               // Smooth scroll with GSAP
               gsap.to(window, {
                 scrollTo: offsetPosition,
-                duration: 1,
+                duration: 0.5,
                 ease: "power2.out"
               });
               
