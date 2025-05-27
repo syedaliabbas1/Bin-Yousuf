@@ -61,10 +61,26 @@ import { projects } from '../data/projects.js';
     scrollY: 0,
     windowHeight: window.innerHeight,
     progress: 0,
-    isAnimating: false
+    isAnimating: false,
+    animationComplete: false
   };
 
   let mainTimeline;
+
+  // Calculate the exact position of the first project in grid
+  function getFirstProjectPosition() {
+    if (!elements.firstProjectInGrid) return { top: 0, left: 0, width: 0, height: 0 };
+    
+    const rect = elements.firstProjectInGrid.getBoundingClientRect();
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    
+    return {
+      top: rect.top + scrollTop,
+      left: rect.left,
+      width: rect.width,
+      height: rect.height
+    };
+  }
 
   // Initialize GSAP animations
   function initializeGSAPAnimations() {
@@ -72,16 +88,33 @@ import { projects } from '../data/projects.js';
     if (!gsap || !elements.animatedProjectImage) return;
 
     // Create main timeline
-    mainTimeline = gsap.timeline({ paused: true });
+    mainTimeline = gsap.timeline({ 
+      paused: true,
+      onUpdate: () => {
+        const progress = mainTimeline.progress();
+        if (progress > 0.95 && !animationState.animationComplete) {
+          completeTransition();
+        }
+      }
+    });
 
-    // Set initial state
+    // Set initial state - PERMANENTLY hide the first project in grid
+    gsap.set(elements.firstProjectInGrid, { 
+      opacity: 0,
+      pointerEvents: 'none',
+      visibility: 'hidden'
+    });
+    
     gsap.set(elements.animatedProjectImage, {
       top: '100vh',
       left: '0',
       width: '100vw',
       height: '100vh',
       opacity: 0,
-      borderRadius: '0px'
+      borderRadius: '0px',
+      zIndex: 999,
+      position: 'fixed',
+      pointerEvents: 'none'
     });
 
     // Create animation sequence
@@ -98,11 +131,124 @@ import { projects } from '../data/projects.js';
         width: '60vw',
         height: '60vh',
         borderRadius: '12px',
-        opacity: 0,
-        duration: 1,
+        duration: 1.2,
         ease: "power2.out"
       });
   }
+
+  // Complete the transition from animated image to grid position
+  // Replace the completeTransition function with this:
+function completeTransition() {
+  if (animationState.animationComplete) return;
+  
+  const gsap = window.gsap;
+  animationState.animationComplete = true;
+
+  if (gsap) {
+    // Get the exact position of the first project container relative to its parent
+    const firstProjectRect = elements.firstProjectInGrid.getBoundingClientRect();
+    const gridContainer = elements.firstProjectInGrid.parentElement;
+    const gridRect = gridContainer.getBoundingClientRect();
+    
+    // Calculate relative position within the grid
+    const relativeTop = firstProjectRect.top - gridRect.top;
+    const relativeLeft = firstProjectRect.left - gridRect.left;
+    
+    // Move the animated image into the grid container and position it correctly
+    gridContainer.appendChild(elements.animatedProjectImage);
+    
+    gsap.set(elements.animatedProjectImage, {
+      position: 'absolute',
+      top: relativeTop,
+      left: relativeLeft,
+      width: firstProjectRect.width,
+      height: firstProjectRect.height,
+      pointerEvents: 'auto',
+      zIndex: 1
+    });
+    
+    // Keep the grid image permanently hidden
+    gsap.set(elements.firstProjectInGrid, { 
+      opacity: 0,
+      pointerEvents: 'none',
+      visibility: 'hidden'
+    });
+  } else {
+    // Fallback without GSAP
+    const firstProjectRect = elements.firstProjectInGrid.getBoundingClientRect();
+    const gridContainer = elements.firstProjectInGrid.parentElement;
+    const gridRect = gridContainer.getBoundingClientRect();
+    
+    const relativeTop = firstProjectRect.top - gridRect.top;
+    const relativeLeft = firstProjectRect.left - gridRect.left;
+    
+    gridContainer.appendChild(elements.animatedProjectImage);
+    
+    elements.animatedProjectImage.style.position = 'absolute';
+    elements.animatedProjectImage.style.top = relativeTop + 'px';
+    elements.animatedProjectImage.style.left = relativeLeft + 'px';
+    elements.animatedProjectImage.style.width = firstProjectRect.width + 'px';
+    elements.animatedProjectImage.style.height = firstProjectRect.height + 'px';
+    elements.animatedProjectImage.style.pointerEvents = 'auto';
+    elements.animatedProjectImage.style.zIndex = '1';
+    
+    elements.firstProjectInGrid.style.opacity = '0';
+    elements.firstProjectInGrid.style.pointerEvents = 'none';
+    elements.firstProjectInGrid.style.visibility = 'hidden';
+  }
+}
+
+// Replace the resetTransition function with this:
+function resetTransition() {
+  if (!animationState.animationComplete) return;
+  
+  const gsap = window.gsap;
+  animationState.animationComplete = false;
+
+  if (gsap) {
+    // Move the animated image back to the fixed container
+    const fixedContainer = document.querySelector('.fixed.top-0.left-0.w-screen.h-screen');
+    if (fixedContainer) {
+      fixedContainer.appendChild(elements.animatedProjectImage);
+    }
+    
+    // Reset to fullscreen mode
+    gsap.set(elements.animatedProjectImage, {
+      position: 'absolute',
+      top: '100vh',
+      left: '0',
+      width: '100vw',
+      height: '100vh',
+      pointerEvents: 'none',
+      zIndex: 999
+    });
+    
+    // Keep the grid image permanently hidden
+    gsap.set(elements.firstProjectInGrid, { 
+      opacity: 0,
+      pointerEvents: 'none',
+      visibility: 'hidden'
+    });
+  } else {
+    // Fallback without GSAP
+    const fixedContainer = document.querySelector('.fixed.top-0.left-0.w-screen.h-screen');
+    if (fixedContainer) {
+      fixedContainer.appendChild(elements.animatedProjectImage);
+    }
+    
+    elements.animatedProjectImage.style.position = 'absolute';
+    elements.animatedProjectImage.style.top = '100vh';
+    elements.animatedProjectImage.style.left = '0';
+    elements.animatedProjectImage.style.width = '100vw';
+    elements.animatedProjectImage.style.height = '100vh';
+    elements.animatedProjectImage.style.pointerEvents = 'none';
+    elements.animatedProjectImage.style.zIndex = '999';
+    
+    elements.firstProjectInGrid.style.opacity = '0';
+    elements.firstProjectInGrid.style.pointerEvents = 'none';
+    elements.firstProjectInGrid.style.visibility = 'hidden';
+  }
+}
 
   // Enhanced scroll sidebar function
   function scrollSidebarToActiveProject(activeItem) {
@@ -242,7 +388,7 @@ import { projects } from '../data/projects.js';
     const projectsSectionPadding = windowHeight * 0.12; // 12vh padding-top
     const firstProjectPosition = heroHeight + projectsSectionPadding;
     const scrollStart = firstProjectPosition - windowHeight;
-    const scrollRange = windowHeight * 2;
+    const scrollRange = windowHeight * 1.5; // Reduced for smoother transition
     
     const gsap = window.gsap;
     
@@ -282,82 +428,87 @@ import { projects } from '../data/projects.js';
     if (!elements.animatedProjectImage) return;
     
     // Calculate progress
-    const progress = Math.min((scrollY - scrollStart) / scrollRange, 1);
-    animationState.progress = Math.max(0, progress);
+    const progress = Math.min(Math.max((scrollY - scrollStart) / scrollRange, 0), 1);
+    animationState.progress = progress;
+    
+    // Reset transition when scrolling back up
+    if (progress < 0.9 && animationState.animationComplete) {
+      resetTransition();
+    }
     
     // Update timeline progress with GSAP or fallback
     if (gsap && mainTimeline) {
-      mainTimeline.progress(animationState.progress);
+      mainTimeline.progress(progress);
     } else {
       // Fallback animation without GSAP
-      fallbackAnimation(animationState.progress);
-    }
-    
-    // Handle first project grid visibility
-    if (elements.firstProjectInGrid) {
-      if (progress < 0.5) {
-        const moveProgress = progress / 0.5;
-        const opacity = 1 - moveProgress * 0.5;
-        if (gsap) {
-          gsap.set(elements.firstProjectInGrid, { opacity });
-        } else {
-          elements.firstProjectInGrid.style.opacity = opacity;
-        }
-      } else {
-        const shrinkProgress = (progress - 0.5) / 0.5;
-        const opacity = 0.5 + shrinkProgress * 0.5;
-        if (gsap) {
-          gsap.set(elements.firstProjectInGrid, { opacity });
-        } else {
-          elements.firstProjectInGrid.style.opacity = opacity;
-        }
-      }
-      
-      if (progress >= 1) {
-        if (gsap) {
-          gsap.set(elements.firstProjectInGrid, { opacity: 1 });
-        } else {
-          elements.firstProjectInGrid.style.opacity = '1';
-        }
-      }
+      fallbackAnimation(progress);
     }
   }
 
-  // Fallback animation for when GSAP is not available
   function fallbackAnimation(progress) {
-    if (!elements.animatedProjectImage) return;
-    
-    if (progress < 0.5) {
-      // Phase 1: Move up and fade in
-      const moveProgress = progress / 0.5;
-      const top = 100 - (moveProgress * 100);
-      
-      elements.animatedProjectImage.style.top = `${top}vh`;
-      elements.animatedProjectImage.style.left = '0';
-      elements.animatedProjectImage.style.width = '100vw';
-      elements.animatedProjectImage.style.height = '100vh';
-      elements.animatedProjectImage.style.opacity = moveProgress;
-      elements.animatedProjectImage.style.borderRadius = '0px';
-    } else {
-      // Phase 2: Shrink and move to position
-      const shrinkProgress = (progress - 0.5) / 0.5;
-      const top = 0 + (shrinkProgress * 12);
-      const left = 0 + (shrinkProgress * 38);
-      const width = 100 - (shrinkProgress * 40);
-      const height = 100 - (shrinkProgress * 40);
-      
-      elements.animatedProjectImage.style.top = `${top}vh`;
-      elements.animatedProjectImage.style.left = `${left}vw`;
-      elements.animatedProjectImage.style.width = `${width}vw`;
-      elements.animatedProjectImage.style.height = `${height}vh`;
-      elements.animatedProjectImage.style.opacity = 1 - shrinkProgress;
-      elements.animatedProjectImage.style.borderRadius = `${shrinkProgress * 12}px`;
+  if (!elements.animatedProjectImage) return;
+  
+  // Always keep the grid image hidden
+  if (elements.firstProjectInGrid) {
+    elements.firstProjectInGrid.style.opacity = '0';
+    elements.firstProjectInGrid.style.pointerEvents = 'none';
+    elements.firstProjectInGrid.style.visibility = 'hidden';
+  }
+  
+  if (progress <= 0) {
+    // Ensure the animated image is in the fixed container
+    const fixedContainer = document.querySelector('.fixed.top-0.left-0.w-screen.h-screen');
+    if (fixedContainer && elements.animatedProjectImage.parentElement !== fixedContainer) {
+      fixedContainer.appendChild(elements.animatedProjectImage);
     }
     
-    if (progress >= 1) {
-      elements.animatedProjectImage.style.opacity = '0';
+    // Initial state
+    elements.animatedProjectImage.style.position = 'absolute';
+    elements.animatedProjectImage.style.top = '100vh';
+    elements.animatedProjectImage.style.left = '0';
+    elements.animatedProjectImage.style.width = '100vw';
+    elements.animatedProjectImage.style.height = '100vh';
+    elements.animatedProjectImage.style.opacity = '0';
+    elements.animatedProjectImage.style.borderRadius = '0px';
+    elements.animatedProjectImage.style.pointerEvents = 'none';
+    elements.animatedProjectImage.style.zIndex = '999';
+  } else if (progress < 0.5) {
+    // Phase 1: Move up and fade in
+    const moveProgress = progress / 0.5;
+    const top = 100 - (moveProgress * 100);
+    
+    elements.animatedProjectImage.style.position = 'absolute';
+    elements.animatedProjectImage.style.top = `${top}vh`;
+    elements.animatedProjectImage.style.left = '0';
+    elements.animatedProjectImage.style.width = '100vw';
+    elements.animatedProjectImage.style.height = '100vh';
+    elements.animatedProjectImage.style.opacity = moveProgress;
+    elements.animatedProjectImage.style.borderRadius = '0px';
+    elements.animatedProjectImage.style.pointerEvents = 'none';
+    elements.animatedProjectImage.style.zIndex = '999';
+  } else {
+    // Phase 2: Shrink and move to position
+    const shrinkProgress = (progress - 0.5) / 0.5;
+    const top = 0 + (shrinkProgress * 12);
+    const left = 0 + (shrinkProgress * 38);
+    const width = 100 - (shrinkProgress * 40);
+    const height = 100 - (shrinkProgress * 40);
+    
+    elements.animatedProjectImage.style.position = 'absolute';
+    elements.animatedProjectImage.style.top = `${top}vh`;
+    elements.animatedProjectImage.style.left = `${left}vw`;
+    elements.animatedProjectImage.style.width = `${width}vw`;
+    elements.animatedProjectImage.style.height = `${height}vh`;
+    elements.animatedProjectImage.style.opacity = '1';
+    elements.animatedProjectImage.style.borderRadius = `${shrinkProgress * 12}px`;
+    elements.animatedProjectImage.style.pointerEvents = 'none';
+    elements.animatedProjectImage.style.zIndex = '999';
+    
+    if (progress > 0.95 && !animationState.animationComplete) {
+      completeTransition();
     }
   }
+}
 
   // Highlight active project
   function highlightActiveProject() {
@@ -429,7 +580,6 @@ import { projects } from '../data/projects.js';
     handleScroll();
   });
 </script>
-
 <!-- Load GSAP from CDN -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollToPlugin.min.js"></script>
