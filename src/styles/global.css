@@ -8,16 +8,22 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+
+  /* Development & Testing */
+  outline: red solid 1px;
 }
 
 body {
-  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background-color: #ffffff;
   overflow-x: hidden;
 }
 
-body, html {
-  cursor: url('data:image/svg+xml;utf8,<svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><line x1="8" y1="3" x2="8" y2="13" stroke="black" stroke-width="2"/><line x1="3" y1="8" x2="13" y2="8" stroke="black" stroke-width="2"/></svg>') 8 8, crosshair;
+body,
+html {
+  cursor: url('data:image/svg+xml;utf8,<svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><line x1="8" y1="3" x2="8" y2="13" stroke="black" stroke-width="2"/><line x1="3" y1="8" x2="13" y2="8" stroke="black" stroke-width="2"/></svg>')
+      8 8,
+    crosshair;
 }
 
 /* Custom component styles */
@@ -50,4 +56,82 @@ body, html {
 
 .transform-gpu {
   transform: translateZ(0);
+}
+
+/* Development & Testing */
+
+.grid-overlay {
+  width: 100%;
+  height: 100%;
+  background-image: repeating-linear-gradient(
+      to right,
+      rgba(255, 0, 0, 0.2) 0,
+      rgba(255, 0, 0, 0.2) 1px,
+      transparent 1px,
+      transparent 100px
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      rgba(0, 0, 255, 0.2) 0,
+      rgba(0, 0, 255, 0.2) 1px,
+      transparent 1px,
+      transparent 100px
+    );
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* Golden Ratio Lines */
+.golden-ratio::before,
+.golden-ratio::after {
+  content: "";
+  position: absolute;
+  background: rgba(255, 215, 0, 0.4); /* gold color */
+}
+
+/* Vertical Golden Ratio Line */
+.golden-ratio::before {
+  width: 1px;
+  height: 100%;
+  left: 61.8%;
+  top: 0;
+}
+
+/* Horizontal Golden Ratio Line */
+.golden-ratio::after {
+  height: 1px;
+  width: 100%;
+  top: 61.8%;
+  left: 0;
+}
+
+.thirds::before,
+.thirds::after {
+  content: "";
+  position: absolute;
+  background: rgba(0, 255, 21, 0.3); /* cyan lines */
+}
+
+/* Vertical thirds */
+.thirds::before {
+  width: 2px;
+  height: 100%;
+  left: 33.33%;
+  box-shadow: 33.33vw 0 rgba(0, 255, 21, 0.3);
+}
+
+/* Horizontal thirds */
+.thirds::after {
+  height: 2px;
+  width: 100%;
+  top: 33.33%;
+  box-shadow: 0 33.33vh rgba(0, 255, 21, 0.3);
 }
