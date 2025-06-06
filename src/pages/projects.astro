@@ -1,5 +1,5 @@
 ---
-// src/pages/projects.astro - Updated with slideshow
+// src/pages/projects.astro - Updated with Animation Manager
 import Layout from '../layouts/Layout.astro';
 import Navigation from '../components/Navigation.tsx';
 import BottomNavigation from '../components/BottomNavigation.tsx';
@@ -53,7 +53,7 @@ const formattedSlideshowImages = slideshowImages.map((img, index) => ({
 <style>
   /* Ensure smooth scrolling without conflicts */
   html {
-    scroll-behavior: auto; /* Let GSAP handle smooth scrolling */
+    scroll-behavior: auto; /* Let Animation Manager handle smooth scrolling */
   }
   
   /* Prevent layout shifts during loading */
@@ -82,19 +82,15 @@ const formattedSlideshowImages = slideshowImages.map((img, index) => ({
 </style>
 
 <script>
-  // Prevent the main TypeScript animations from running on projects page
-  // This ensures no conflicts between React components and TS scroll handlers
+  // Import and initialize Animation Manager for projects page
+  import AnimationManager from '../scripts/managers/AnimationManager';
   
-  // Remove any existing scroll listeners from main.ts
-  if (typeof window !== 'undefined') {
-    // Clean up any existing main.ts scroll listeners
-    const existingHandlers = (window as any).__scrollHandlers || [];
-    existingHandlers.forEach((handler: EventListener) => {
-      window.removeEventListener('scroll', handler);
-    });
-    (window as any).__scrollHandlers = [];
-    
-    // Mark this page as projects page to prevent main.ts initialization
-    (window as any).__isProjectsPage = true;
-  }
+  // Initialize Animation Manager
+  const manager = AnimationManager.getInstance();
+  manager.initialize();
+  
+  // Cleanup on page navigation
+  document.addEventListener('astro:before-preparation', () => {
+    manager.cleanup();
+  });
 </script>

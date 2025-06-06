@@ -1,10 +1,7 @@
-// src/components/ProjectsList.tsx - Fixed version
+// src/components/ProjectsList.tsx - Updated to use AnimationManager
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { gsap } from 'gsap';
-import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import type { Project } from '../scripts/types/index.js';
-
-gsap.registerPlugin(ScrollToPlugin);
+import { useAnimationManager } from '../hooks/useAnimationManager';
 
 interface ProjectsListProps {
   projects: Project[];
@@ -20,6 +17,16 @@ const ProjectsList: React.FC<ProjectsListProps> = ({ projects, emaarProjects, hm
   const observerRef = useRef<IntersectionObserver | null>(null);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isInitializedRef = useRef(false);
+  
+  // Use Animation Manager
+  const { scrollToElement } = useAnimationManager({
+    scrollHandler: {
+      id: 'projects-list-scroll',
+      handler: () => {
+        // Custom scroll handling for projects list can be added here if needed
+      }
+    }
+  });
 
   // Debounced scroll handler to prevent excessive state updates
   const debouncedSetCurrentIndex = useCallback((index: number) => {
@@ -38,7 +45,6 @@ const ProjectsList: React.FC<ProjectsListProps> = ({ projects, emaarProjects, hm
     
     const hash = window.location.hash;
     if (hash) {
-      // Use requestAnimationFrame to ensure DOM is ready
       requestAnimationFrame(() => {
         const targetElement = document.querySelector(hash);
         if (targetElement) {
@@ -46,40 +52,34 @@ const ProjectsList: React.FC<ProjectsListProps> = ({ projects, emaarProjects, hm
           if (!isNaN(projectIndex)) {
             setCurrentIndex(projectIndex);
             
-            // Smooth scroll to element
-            targetElement.scrollIntoView({ 
-              behavior: 'smooth', 
-              block: 'start',
-              inline: 'nearest'
-            });
+            // Use Animation Manager for scrolling
+            scrollToElement(targetElement as HTMLElement, 0);
           }
         }
       });
     }
     isInitializedRef.current = true;
-  }, []);
+  }, [scrollToElement]);
 
   // Setup intersection observer with optimized settings
   const setupIntersectionObserver = useCallback(() => {
-    // Clean up existing observer
+    // Clean up existing observer to prevent duplicates
     if (observerRef.current) {
       observerRef.current.disconnect();
     }
 
     const options: IntersectionObserverInit = {
       root: null,
-      rootMargin: '-20% 0px -20% 0px', // More conservative margins
-      threshold: [0.3, 0.7] // Multiple thresholds for better detection
+      rootMargin: '-20% 0px -20% 0px',
+      threshold: [0.3, 0.7]
     };
 
     observerRef.current = new IntersectionObserver((entries) => {
-      // Only process if not currently scrolling programmatically
       if (isScrolling) return;
 
       let maxIntersectionRatio = 0;
       let mostVisibleEntry: IntersectionObserverEntry | null = null;
 
-      // Find the most visible section
       entries.forEach(entry => {
         if (entry.intersectionRatio > maxIntersectionRatio) {
           maxIntersectionRatio = entry.intersectionRatio;
@@ -93,7 +93,6 @@ const ProjectsList: React.FC<ProjectsListProps> = ({ projects, emaarProjects, hm
         const projectIndex = parseInt(target.dataset.projectIndex || '0');
         
         if (!isNaN(projectIndex)) {
-          // Update URL hash without triggering scroll
           const newHash = `#project-${projectId}`;
           if (window.location.hash !== newHash) {
             history.replaceState(null, '', newHash);
@@ -104,7 +103,6 @@ const ProjectsList: React.FC<ProjectsListProps> = ({ projects, emaarProjects, hm
       }
     }, options);
 
-    // Observe all sections
     sectionsRef.current.forEach(section => {
       if (section && observerRef.current) {
         observerRef.current.observe(section);
@@ -121,22 +119,14 @@ const ProjectsList: React.FC<ProjectsListProps> = ({ projects, emaarProjects, hm
 
     setIsScrolling(true);
     
-    // Use GSAP for smooth, controlled scrolling
-    gsap.to(window, {
-      duration: 1.2,
-      scrollTo: { 
-        y: targetSection, 
-        offsetY: 0
-      },
-      ease: "power2.inOut",
-      onComplete: () => {
-        // Add delay to prevent immediate intersection observer conflicts
-        setTimeout(() => {
-          setIsScrolling(false);
-        }, 200);
-      }
-    });
-  }, [isScrolling]);
+    // Use Animation Manager for smooth scrolling
+    scrollToElement(targetSection, 0);
+    
+    // Reset scrolling state after animation
+    setTimeout(() => {
+      setIsScrolling(false);
+    }, 1400);
+  }, [isScrolling, scrollToElement]);
 
   // Handle navigation clicks
   const handleNavigationClick = useCallback((e: Event) => {
@@ -160,7 +150,7 @@ const ProjectsList: React.FC<ProjectsListProps> = ({ projects, emaarProjects, hm
 
   // Keyboard navigation with throttling
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (isScrolling) return; // Prevent rapid key presses during scroll
+    if (isScrolling) return;
     
     if (e.key === 'ArrowDown' && currentIndex < projects.length - 1) {
       e.preventDefault();
@@ -180,7 +170,6 @@ const ProjectsList: React.FC<ProjectsListProps> = ({ projects, emaarProjects, hm
   useEffect(() => {
     handleInitialScroll();
     
-    // Small delay to ensure DOM is fully rendered
     const initTimeout = setTimeout(() => {
       setupIntersectionObserver();
     }, 100);
@@ -270,7 +259,6 @@ const ProjectsList: React.FC<ProjectsListProps> = ({ projects, emaarProjects, hm
                 loading={index < 2 ? "eager" : "lazy"}
               />
               
-              {/* Overlay for better interaction feedback */}
               <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/10" />
             </a>
             

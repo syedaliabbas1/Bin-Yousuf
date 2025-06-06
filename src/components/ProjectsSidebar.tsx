@@ -1,12 +1,8 @@
-// src/components/ProjectsSidebar.tsx - Fixed with click functionality
+// src/components/ProjectsSidebar.tsx - Updated to use AnimationManager
 import React, { useEffect, useRef, useState } from 'react';
-import { gsap } from 'gsap';
-import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import { projects } from '../data/projects.js';
 import type { Project } from '../scripts/types/index.js';
-
-// Register GSAP plugin
-gsap.registerPlugin(ScrollToPlugin);
+import { useAnimationManager } from '../hooks/useAnimationManager';
 
 interface ProjectsSidebarProps {
   currentPath: string;
@@ -18,6 +14,9 @@ const ProjectsSidebar: React.FC<ProjectsSidebarProps> = ({ currentPath, isVisibl
   const [activeProjectId, setActiveProjectId] = useState<number | null>(null);
   const [isScrolling, setIsScrolling] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
+  
+  // Use Animation Manager
+  const { scrollToElement, highlightElement } = useAnimationManager();
 
   const isProjectsPage = currentPath === '/projects' || currentPath === '/projects/';
   const isHomePage = currentPath === '/' || currentPath === '';
@@ -35,14 +34,19 @@ const ProjectsSidebar: React.FC<ProjectsSidebarProps> = ({ currentPath, isVisibl
   }, []);
 
   const setupIntersectionObserver = () => {
+    // Prevent duplicate observers
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+    }
+
     const options: IntersectionObserverInit = {
       root: null,
-      rootMargin: '-50% 0px -50% 0px', // Trigger when element is in center of viewport
+      rootMargin: '-50% 0px -50% 0px',
       threshold: 0
     };
 
     observerRef.current = new IntersectionObserver((entries) => {
-      if (isScrolling) return; // Don't update during programmatic scrolling
+      if (isScrolling) return;
 
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -66,7 +70,6 @@ const ProjectsSidebar: React.FC<ProjectsSidebarProps> = ({ currentPath, isVisibl
   };
 
   const handleProjectClick = (project: Project, event?: React.MouseEvent) => {
-    // Prevent default link behavior
     event?.preventDefault();
     
     const targetId = `project-${project.id}`;
@@ -76,57 +79,17 @@ const ProjectsSidebar: React.FC<ProjectsSidebarProps> = ({ currentPath, isVisibl
       setIsScrolling(true);
       setActiveProjectId(project.id);
 
-      // Calculate offset based on navigation height
-      const navHeight = 80;
-      const elementPosition = targetElement.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - navHeight;
+      // Use Animation Manager for scrolling
+      scrollToElement(targetElement, 80);
+      
+      // Highlight the target element
+      highlightElement(targetElement);
 
-      // Use GSAP for smooth scrolling
-      gsap.to(window, {
-        scrollTo: offsetPosition,
-        duration: 1,
-        ease: "power2.out",
-        onComplete: () => {
-          // Reset scrolling state after animation
-          setTimeout(() => {
-            setIsScrolling(false);
-          }, 100);
-        }
-      });
-
-      // Add highlight animation to target element
-      highlightProject(targetElement);
+      // Reset scrolling state after animation
+      setTimeout(() => {
+        setIsScrolling(false);
+      }, 1100);
     }
-  };
-
-  const highlightProject = (targetElement: HTMLElement) => {
-    // Create highlight animation
-    const timeline = gsap.timeline();
-    
-    timeline
-      .to(targetElement, {
-        y: -15,
-        boxShadow: "0 40px 100px rgba(0, 0, 0, 0.25)",
-        duration: 0.6,
-        ease: "power2.out"
-      })
-      .to(targetElement.querySelector('.project-image') || targetElement.querySelector('img'), {
-        scale: 1.02,
-        duration: 0.6,
-        ease: "power2.out"
-      }, 0)
-      .to(targetElement, {
-        y: 0,
-        boxShadow: "0 20px 60px rgba(0, 0, 0, 0.15)",
-        duration: 0.6,
-        ease: "power2.out",
-        delay: 1.4
-      })
-      .to(targetElement.querySelector('.project-image') || targetElement.querySelector('img'), {
-        scale: 1,
-        duration: 0.6,
-        ease: "power2.out"
-      }, "-=0.6");
   };
 
   const scrollSidebarToActiveProject = (activeProjectId: number) => {
@@ -146,16 +109,14 @@ const ProjectsSidebar: React.FC<ProjectsSidebarProps> = ({ currentPath, isVisibl
     
     // Smooth scroll sidebar to keep active item visible
     if (activeItemTop < 0) {
-      gsap.to(sidebarRef.current, {
-        scrollTop: sidebarScrollTop + activeItemTop - 20,
-        duration: 0.5,
-        ease: "power2.out"
+      sidebarRef.current.scrollTo({
+        top: sidebarScrollTop + activeItemTop - 20,
+        behavior: 'smooth'
       });
     } else if (activeItemBottom > sidebarHeight) {
-      gsap.to(sidebarRef.current, {
-        scrollTop: sidebarScrollTop + (activeItemBottom - sidebarHeight) + 20,
-        duration: 0.5,
-        ease: "power2.out"
+      sidebarRef.current.scrollTo({
+        top: sidebarScrollTop + (activeItemBottom - sidebarHeight) + 20,
+        behavior: 'smooth'
       });
     }
   };
@@ -200,7 +161,6 @@ const ProjectsSidebar: React.FC<ProjectsSidebarProps> = ({ currentPath, isVisibl
       ${isActive ? 'bg-black/[0.08] translate-x-[5px]' : ''}
     `;
 
-    // Always use click handler for staying on the same page
     return (
       <div
         key={project.id}
@@ -222,17 +182,20 @@ const ProjectsSidebar: React.FC<ProjectsSidebarProps> = ({ currentPath, isVisibl
     );
   };
 
+  // Use visibility prop from parent (controlled by AnimationManager on home page)
+  const sidebarClassName = `
+    fixed left-[5vw] top-[15vh] w-[400px] max-h-[70vh] 
+    bg-white/95 backdrop-blur-[20px] rounded-2xl p-[30px_25px]
+    z-[5] transition-all duration-500 overflow-y-auto
+    shadow-[0_20px_60px_rgba(0,0,0,0.1)] custom-scrollbar
+    will-change-[opacity,transform] hidden lg:block
+    ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-[100px]'}
+  `;
+
   return (
     <div
       ref={sidebarRef}
-      className={`
-        fixed left-[5vw] top-[15vh] w-[400px] max-h-[70vh] 
-        bg-white/95 backdrop-blur-[20px] rounded-2xl p-[30px_25px]
-        z-[5] transition-all duration-500 overflow-y-auto
-        shadow-[0_20px_60px_rgba(0,0,0,0.1)] custom-scrollbar
-        will-change-[opacity,transform] hidden lg:block
-        ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-[100px]'}
-      `}
+      className={sidebarClassName}
       id="projectsSidebar"
     >
       <div className="flex justify-between items-center mb-[25px] pb-[15px] border-b border-black/10">
