@@ -1,4 +1,4 @@
-// src/components/Navigation.tsx
+// src/components/Navigation.tsx - Updated with WhatsApp Contact
 import React, { useState, useEffect } from 'react';
 import { getProjectCounts } from '../data/projects.js';
 import logoImage from '../assets/projects/logo.webp';
@@ -13,6 +13,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentPath }) => {
 
   const isProjectsListPage = currentPath === '/projects' || currentPath === '/projects/';
   const isProjectDetailPage = currentPath.startsWith('/projects/') && currentPath !== '/projects/';
+  const isAboutPage = currentPath === '/about' || currentPath === '/about/';
 
   useEffect(() => {
     const counts = getProjectCounts();
@@ -77,6 +78,18 @@ const Navigation: React.FC<NavigationProps> = ({ currentPath }) => {
     document.body.style.overflow = '';
   };
 
+  const handleContactClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const message = "Hi! I'm interested in learning more about BYG and your waterfront properties. Could you please provide me with more information?";
+    const whatsappUrl = `https://wa.me/923360878079?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+    
+    // Close mobile menu if open
+    if (isMenuOpen) {
+      closeMenu();
+    }
+  };
+
   return (
     <nav className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-[10px] z-[1000] border-b border-black/10">
       <div className="flex justify-between items-center max-w-[1400px] mx-auto px-10 py-5">
@@ -91,8 +104,6 @@ const Navigation: React.FC<NavigationProps> = ({ currentPath }) => {
               alt="BYG Logo" 
               className="h-8 w-auto transition-all duration-300 group-hover:brightness-110"
             />
-            {/* Optional: Keep text for better branding */}
-            
           </a>
         </div>
 
@@ -122,17 +133,19 @@ const Navigation: React.FC<NavigationProps> = ({ currentPath }) => {
 
         <div className="hidden md:flex items-center gap-[30px]">
           <a 
-            href="/#about" 
-            className="text-gray-500 text-sm font-normal transition-colors duration-300 hover:text-black"
+            href="/about" 
+            className={`text-sm font-normal transition-colors duration-300 hover:text-black ${
+              isAboutPage ? 'text-black' : 'text-gray-500'
+            }`}
           >
             About
           </a>
-          <a 
-            href="/#contact" 
-            className="text-gray-500 text-sm font-normal transition-colors duration-300 hover:text-black"
+          <button 
+            onClick={handleContactClick}
+            className="text-gray-500 text-sm font-normal transition-colors duration-300 hover:text-black bg-transparent border-none cursor-pointer font-inherit"
           >
             Contact
-          </a>
+          </button>
         </div>
 
         {/* Mobile Hamburger Menu */}
@@ -205,23 +218,25 @@ const Navigation: React.FC<NavigationProps> = ({ currentPath }) => {
             </span>
           </a>
           <a
-            href="/#about"
-            className="text-gray-500 text-base font-medium transition-all duration-300 py-3 
+            href="/about"
+            className={`text-gray-500 text-base font-medium transition-all duration-300 py-3 
               border-b border-black/5 flex justify-between items-center
-              hover:text-black hover:translate-x-[5px]"
+              hover:text-black hover:translate-x-[5px] ${
+              isAboutPage ? 'text-black' : ''
+            }`}
             onClick={closeMenu}
           >
             About
           </a>
-          <a
-            href="/#contact"
+          <button
+            onClick={handleContactClick}
             className="text-gray-500 text-base font-medium transition-all duration-300 py-3 
               border-b border-black/5 flex justify-between items-center
-              hover:text-black hover:translate-x-[5px]"
-            onClick={closeMenu}
+              hover:text-black hover:translate-x-[5px] bg-transparent border-none cursor-pointer 
+              text-left w-full font-inherit"
           >
             Contact
-          </a>
+          </button>
         </div>
       </div>
     </nav>

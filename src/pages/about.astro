@@ -1,0 +1,48 @@
+---
+// src/pages/about.astro
+import Layout from '../layouts/Layout.astro';
+import Navigation from '../components/Navigation.tsx';
+import AboutHero from '../components/About/AboutHero.tsx';
+import AboutContent from '../components/About/AboutContent.tsx';
+import AboutStats from '../components/About/AboutStats.tsx';
+import AboutPartners from '../components/About/AboutPartners.tsx';
+import AboutCTA from '../components/About/AboutCTA.tsx';
+
+const currentPath = Astro.url.pathname;
+---
+
+<Layout 
+  title="About Us - BYG | Specialists in Waterfront Properties" 
+  description="BinYousuf Group - Official sales partners and authorized dealers of HMR Waterfront and Emaar Oceanfront. Specialists in waterfront properties in Karachi."
+>
+  <Navigation currentPath={currentPath} client:load />
+  
+  <main class="pt-20">
+    <AboutHero client:load />
+    <AboutContent client:load />
+    <AboutStats client:load />
+    <AboutPartners client:load />
+    <AboutCTA client:load />
+  </main>
+</Layout>
+
+<style>
+  /* Smooth scrolling for the about page */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Performance optimizations */
+  main {
+    contain: layout style;
+  }
+  
+  /* Reduce motion for accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>
