@@ -4,15 +4,15 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && astro-compress ./dist",
     "preview": "astro preview",
     "astro": "astro"
   },
   "dependencies": {
     "@astrojs/react": "^4.3.0",
-    "@astrojs/tailwind": "^5.1.2",
+    "@astrojs/tailwind": "^6.0.2",
     "@gsap/react": "^2.1.2",
-    "astro": "^5.8.0",
+    "astro": "^5.9.0",
     "gsap": "^3.13.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
@@ -24,6 +24,7 @@
     "@types/node": "^20.11.0",
     "@types/react": "^19.1.6",
     "@types/react-dom": "^19.1.6",
+    "astro-compress": "^2.3.8",
     "tsx": "^4.19.4"
   }
 }

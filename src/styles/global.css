@@ -1,4 +1,4 @@
-/* src/styles/global.css - Updated with navbar stability fixes */
+/* src/styles/global.css - Performance optimized version */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
 
 /* Tailwind Directives */
@@ -6,277 +6,198 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Critical styles to prevent layout shift */
+/* Critical CSS for above-the-fold content */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-/* Font loading optimization */
-.font-poppins {
-  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+/* Font optimization with font-display: swap */
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Poppins Regular'), local('Poppins-Regular'),
+       url('https://fonts.gstatic.com/s/poppins/v20/pxiEyp8kv8JHgFVrJJfecg.woff2') format('woff2');
 }
 
-/* Base Layer Customizations */
-@layer base {
-  /* Reset and Base Styles with font stability */
-  * {
-    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-  }
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: local('Poppins Medium'), local('Poppins-Medium'),
+       url('https://fonts.gstatic.com/s/poppins/v20/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2') format('woff2');
+}
 
-  /* Body Styles with stable layout */
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Poppins SemiBold'), local('Poppins-SemiBold'),
+       url('https://fonts.gstatic.com/s/poppins/v20/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2') format('woff2');
+}
+
+/* Base Layer with performance optimizations */
+@layer base {
+  /* Body with optimized font stack */
   body {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     @apply bg-white overflow-x-hidden font-normal leading-relaxed text-gray-800;
-    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
     
-    /* Prevent layout shift during loading */
+    /* Performance optimizations */
+    text-rendering: optimizeSpeed;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    
+    /* Prevent layout shifts */
     min-height: 100vh;
     overscroll-behavior: none;
-    scroll-behavior: auto; /* Let GSAP handle smooth scrolling */
   }
 
-  /* Typography with stable dimensions */
+  /* Optimized typography */
+  h1, h2, h3, h4, h5, h6 {
+    text-rendering: optimizeLegibility;
+  }
+
   h1 { @apply text-clamp-title font-bold tracking-tight mb-2 text-gray-800; }
   h2 { @apply text-clamp-subtitle font-semibold tracking-tight mb-2 text-gray-800; }
   h3 { @apply text-2xl lg:text-[28px] font-semibold mb-2 text-gray-800; }
-  h4 { @apply text-lg lg:text-[22px] font-semibold mb-2 text-gray-800; }
-  h5 { @apply text-base lg:text-lg font-medium mb-2 text-gray-800; }
-  h6 { @apply text-sm lg:text-base font-medium mb-2 text-gray-800; }
 
-  /* Links */
+  /* Links with minimal styles */
   a {
-    @apply text-inherit no-underline transition-colors duration-300;
+    @apply text-inherit no-underline;
+    transition: color 0.2s ease;
   }
 
-  /* Form Elements */
-  button, input, textarea, select {
-    @apply font-normal;
-    font-family: 'Poppins', sans-serif !important;
+  /* Optimized images */
+  img {
+    @apply max-w-full h-auto;
+    content-visibility: auto;
   }
 
-  /* Ensure stable layout during hydration */
-  [data-hydrating] {
-    visibility: hidden;
-  }
-
-  [data-hydrated] {
-    visibility: visible;
-  }
-
-  /* Scroll performance improvements */
-  html {
-    scroll-behavior: auto; /* Disable native smooth scroll to prevent conflicts */
+  /* Reduce reflow during font loading */
+  .font-poppins {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
 }
 
-/* Component Layer */
+/* Component Layer with performance focus */
 @layer components {
-  /* Navigation stability fixes */
+  /* Navigation performance */
   nav {
     contain: layout style;
-    will-change: transform;
-    min-height: 80px; /* Consistent height */
-  }
-
-  /* Navigation items should not cause layout shift */
-  .nav-item {
-    white-space: nowrap;
-    min-width: max-content;
-  }
-
-  /* Logo container with stable dimensions */
-  .logo-container {
-    min-width: 32px;
-    min-height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  /* Mobile menu button with fixed dimensions */
-  .mobile-menu-button {
-    min-width: 40px;
-    min-height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  /* Scroll optimized containers */
-  .scroll-container {
-    contain: layout style paint;
-    overflow-anchor: none;
-  }
-
-  .scroll-item {
+    will-change: auto;
     transform: translateZ(0);
-    backface-visibility: hidden;
-    contain: layout style;
   }
 
-  /* Project Card Component with optimizations */
+  /* Optimized project cards */
   .project-card {
     @apply relative w-full h-[60vh] rounded-xl overflow-hidden shadow-project
-           transition-all duration-300 cursor-pointer block no-underline;
+           transition-transform duration-300 cursor-pointer block no-underline;
     
     /* Performance optimizations */
-    transform: translateZ(0);
-    backface-visibility: hidden;
-    will-change: transform, box-shadow;
+    contain: layout style paint;
+    content-visibility: auto;
+    contain-intrinsic-size: auto 60vh;
   }
 
   .project-card:hover {
     @apply -translate-y-2.5 shadow-project-hover;
   }
 
-  .project-card.highlighted {
-    @apply -translate-y-4 shadow-project-highlight;
-    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  /* Navigation Link */
-  .nav-link {
-    @apply text-gray-500 text-sm font-normal transition-colors duration-300 hover:text-black;
-    white-space: nowrap;
-  }
-
-  .nav-link.active {
-    @apply text-black;
-  }
-
-  /* Button Styles */
+  /* Optimized buttons */
   .btn-primary {
     @apply inline-flex items-center gap-3 bg-gradient-to-r from-[#667eea] to-[#764ba2] 
            text-white border-none px-8 py-4 rounded-xl text-base font-medium 
-           cursor-pointer transition-all duration-300 shadow-[0_4px_15px_rgba(102,126,234,0.3)]
-           hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(102,126,234,0.4)];
+           cursor-pointer shadow-[0_4px_15px_rgba(102,126,234,0.3)];
     
-    /* GPU acceleration */
-    transform: translateZ(0);
-    backface-visibility: hidden;
-    will-change: transform, box-shadow;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    will-change: transform;
+  }
+
+  .btn-primary:hover {
+    @apply -translate-y-0.5 shadow-[0_8px_25px_rgba(102,126,234,0.4)];
   }
 
   .btn-secondary {
     @apply inline-block px-10 py-4 bg-gray-800 text-white no-underline 
-           rounded-lg font-medium transition-all duration-300
-           hover:bg-black hover:-translate-y-0.5;
+           rounded-lg font-medium;
     
-    /* GPU acceleration */
-    transform: translateZ(0);
-    backface-visibility: hidden;
-    will-change: transform, background-color;
+    transition: background-color 0.2s ease, transform 0.2s ease;
   }
 
-  /* Mobile Menu Item */
-  .mobile-menu-item {
-    @apply text-gray-500 text-base font-medium transition-all duration-300 py-3 
-           border-b border-black/5 flex justify-between items-center
-           hover:text-black hover:translate-x-1;
+  .btn-secondary:hover {
+    @apply bg-black -translate-y-0.5;
   }
 
-  /* Project Overlay with performance optimizations */
-  .project-overlay {
-    @apply absolute bottom-0 left-0 right-0 
-           bg-gradient-to-t from-black/70 to-transparent
-           p-[40px_30px_30px] transform transition-transform duration-300
-           text-white translate-y-full;
-    
-    /* Performance optimizations */
-    backface-visibility: hidden;
-    will-change: transform;
-  }
-
-  .project-card:hover .project-overlay {
-    @apply translate-y-0;
-  }
-
-  /* Sidebar Item with optimizations */
+  /* Optimized sidebar */
   .sidebar-item {
     @apply flex items-start p-[12px_8px] cursor-pointer 
-           transition-all duration-300 rounded-lg relative mb-1
-           hover:bg-black/5 hover:translate-x-1;
+           rounded-lg relative mb-1;
     
-    /* Performance optimizations */
-    transform: translateZ(0);
-    backface-visibility: hidden;
-    will-change: transform, background-color;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .sidebar-item:hover {
+    @apply bg-black/5 translate-x-1;
   }
 
   .sidebar-item.active {
     @apply bg-black/[0.08] translate-x-1;
   }
 
-  /* Optimized image containers */
+  /* Image containers with lazy loading support */
   .image-container {
-    transform: translateZ(0);
-    backface-visibility: hidden;
     contain: layout style paint;
+    content-visibility: auto;
   }
 
-  .image-container img {
-    transform: translateZ(0);
-    backface-visibility: hidden;
-    will-change: transform;
+  /* Mobile menu optimization */
+  .mobile-menu-item {
+    @apply text-gray-500 text-base font-medium py-3 
+           border-b border-black/5 flex justify-between items-center;
+    
+    transition: color 0.2s ease, transform 0.2s ease;
   }
 }
 
 /* Utility Layer */
 @layer utilities {
-  /* Performance optimizations */
+  /* Performance utilities */
   .gpu-accelerated {
-    transform: translate3d(0, 0, 0);
-    backface-visibility: hidden;
-    will-change: transform;
-  }
-
-  .scroll-optimized {
-    contain: layout style paint;
-    overflow-anchor: none;
-  }
-
-  .paint-optimized {
-    contain: layout style paint;
     transform: translateZ(0);
     backface-visibility: hidden;
+    will-change: auto;
   }
 
-  /* Navigation stability utilities */
-  .stable-nav {
-    contain: layout style;
-    min-height: 80px;
-    will-change: transform;
+  .contain-paint {
+    contain: paint;
   }
 
-  .stable-nav-item {
-    white-space: nowrap;
-    min-width: max-content;
+  .contain-layout {
+    contain: layout;
   }
 
-  /* Custom Cursor - only for desktop */
-  @media (min-width: 1024px) {
-    body:not(.projects-page), html:not(.projects-page) {
-      cursor: url('data:image/svg+xml;utf8,<svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><line x1="8" y1="3" x2="8" y2="13" stroke="black" stroke-width="2"/><line x1="3" y1="8" x2="13" y2="8" stroke="black" stroke-width="2"/></svg>') 8 8, crosshair;
-    }
+  .contain-strict {
+    contain: strict;
   }
 
-  /* Animation States */
-  body.animating {
-    @apply overflow-x-hidden;
+  /* Scroll optimization */
+  .scroll-optimized {
+    contain: layout style paint;
+    content-visibility: auto;
   }
 
-  /* Projects page specific optimizations */
-  .projects-page {
-    overscroll-behavior: none;
-    scroll-behavior: auto;
+  /* Loading states with skeleton screens */
+  .skeleton {
+    @apply bg-gray-200 animate-pulse;
   }
 
-  .projects-page * {
-    will-change: auto; /* Reset will-change for projects page */
-  }
-
-  /* Custom Scrollbar */
+  /* Custom scrollbar with reduced paint */
   .custom-scrollbar::-webkit-scrollbar {
     @apply w-1;
   }
@@ -286,10 +207,10 @@
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-black/20 rounded hover:bg-black/30;
+    @apply bg-black/20 rounded;
   }
 
-  /* Hide scrollbar but keep functionality */
+  /* Hide scrollbar */
   .hide-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -299,96 +220,36 @@
     display: none;
   }
 
-  /* Desktop only utility */
+  /* Visibility utilities */
   .desktop-only {
     @apply hidden lg:block;
   }
 
-  /* Mobile only utility */
   .mobile-only {
     @apply block lg:hidden;
   }
 
-  /* Scroll snap utilities - disabled by default for better control */
-  .scroll-snap-disabled {
-    scroll-snap-type: none;
-  }
-
-  .scroll-snap-y-mandatory {
-    scroll-snap-type: y mandatory;
-  }
-
-  .scroll-snap-start {
-    scroll-snap-align: start;
-  }
-
-  /* Intersection observer optimizations */
-  .intersection-optimized {
+  /* Content visibility for performance */
+  .content-auto {
     content-visibility: auto;
-    contain-intrinsic-size: 100vh;
+    contain-intrinsic-size: auto 100vh;
   }
 
-  /* Font loading stability */
-  .font-stable {
-    font-display: swap;
-    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-  }
-
-  /* Hydration stability */
-  .hydration-stable {
-    visibility: hidden;
-  }
-
-  .hydration-stable.loaded {
-    visibility: visible;
+  /* Reduce motion */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
-/* Prevent transitions during page load */
-.preload * {
-  transition: none !important;
-  animation: none !important;
-}
-
-/* Enable transitions after page load */
-.loaded * {
-  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
-}
-
-/* Hero Text Animations - Keep these as regular CSS for GSAP compatibility */
-@keyframes blur-in {
-  0% {
-    filter: blur(10px);
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  100% {
-    filter: blur(0px);
-    opacity: 1;
-    transform: translateY(0px);
-  }
-}
-
-@keyframes blur-out {
-  0% {
-    filter: blur(0px);
-    opacity: 1;
-    transform: translateY(0px);
-  }
-  100% {
-    filter: blur(10px);
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-}
-
-/* Gallery Item Animations */
+/* Optimized animations */
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(40px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -396,151 +257,58 @@
   }
 }
 
-/* Performance optimizations for different browsers */
-@supports (content-visibility: auto) {
-  .performance-optimized {
-    content-visibility: auto;
-    contain-intrinsic-size: 1px 100vh;
-  }
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease-out forwards;
 }
 
-/* Reduce motion for users who prefer it */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-
-  /* Disable GSAP animations for reduced motion */
-  .gsap-animation {
-    animation: none !important;
-    transition: none !important;
-  }
-}
-
-/* High contrast mode support */
-@media (prefers-contrast: high) {
-  .project-card {
-    border: 2px solid currentColor;
-  }
-  
-  .btn-primary,
-  .btn-secondary {
-    border: 2px solid currentColor;
-  }
-}
-
-/* Focus management for better accessibility */
-.focus-trap {
-  outline: none;
-}
-
-.focus-trap:focus-visible {
-  outline: 2px solid #667eea;
-  outline-offset: 2px;
-}
-
-/* Loading states */
-.loading-skeleton {
-  background: linear-gradient(90deg, #f0f0f0 25%, transparent 37%, #f0f0f0 63%);
-  background-size: 400% 100%;
-  animation: skeleton-loading 1.4s ease infinite;
-}
-
-@keyframes skeleton-loading {
+/* Hero text animations - keep minimal */
+@keyframes blur-in {
   0% {
-    background-position: 100% 50%;
+    filter: blur(10px);
+    opacity: 0;
   }
   100% {
-    background-position: -100% 50%;
+    filter: blur(0px);
+    opacity: 1;
   }
 }
 
-/* Error boundaries */
-.error-boundary {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 50vh;
-  padding: 2rem;
-  text-align: center;
-}
-
-/* Print styles */
-@media print {
-  * {
-    animation: none !important;
-    transition: none !important;
-    transform: none !important;
+@keyframes blur-out {
+  0% {
+    filter: blur(0px);
+    opacity: 1;
   }
-  
-  .no-print {
-    display: none !important;
+  100% {
+    filter: blur(10px);
+    opacity: 0;
   }
 }
 
-/* Projects page specific styles */
-.projects-page-container {
-  overscroll-behavior: none;
-  scroll-behavior: auto;
-}
-
-.projects-page-section {
-  /* Optimize paint operations for sections */
-  contain: layout style paint;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-}
-
-.projects-page-image {
-  /* Optimize image rendering */
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  will-change: transform;
-}
-
-/* Sidebar optimizations */
-#projectsSidebar {
-  /* Optimize sidebar performance */
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  contain: layout style paint;
-}
-
-#projectsSidebar.visible {
-  will-change: transform, opacity;
-}
-
-/* Animated project image optimizations */
-#animatedProjectImage {
-  /* Optimize the main animated image */
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  will-change: transform, width, height, top, left, opacity, border-radius;
-}
-
-/* Hero section optimizations */
-.hero-section {
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  contain: layout style;
-}
-
-/* Text animation optimizations */
 .blur-in {
-  animation: blur-in 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: blur-in 0.6s ease-out forwards;
 }
 
 .blur-out {
-  animation: blur-out 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: blur-out 0.3s ease-out forwards;
 }
 
-/* Navigation specific stability fixes */
+/* Performance states */
+body.is-scrolling * {
+  pointer-events: none !important;
+}
+
+body.is-scrolling .btn-primary,
+body.is-scrolling .btn-secondary,
+body.is-scrolling a {
+  pointer-events: auto !important;
+}
+
+/* Lazy loading styles */
+img[loading="lazy"] {
+  background-color: #f3f4f6;
+}
+
+/* Critical navigation styles */
 .navbar-stable {
   position: fixed;
   top: 0;
@@ -552,157 +320,69 @@
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   z-index: 1000;
   contain: layout style;
-  will-change: transform;
 }
 
-.navbar-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 20px 40px;
-  min-height: 80px;
+/* Projects page specific optimizations */
+.projects-page * {
+  will-change: auto;
 }
 
-.navbar-logo {
-  min-width: 32px;
-  min-height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.projects-page-section {
+  contain: layout style paint;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 100vh;
 }
 
-.navbar-nav {
-  display: flex;
-  align-items: center;
-  gap: 30px;
+/* Optimize paint operations */
+#projectsSidebar {
+  contain: layout style paint;
+  will-change: transform, opacity;
 }
 
-.navbar-nav-item {
-  white-space: nowrap;
-  font-size: 14px;
-  font-weight: 400;
-  color: #6b7280;
-  text-decoration: none;
-  transition: color 0.3s ease;
+#animatedProjectImage {
+  contain: layout style;
+  will-change: auto;
 }
 
-.navbar-nav-item:hover,
-.navbar-nav-item.active {
-  color: #000;
+/* Print optimizations */
+@media print {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
 }
 
-.navbar-mobile-toggle {
-  min-width: 40px;
-  min-height: 40px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 8px;
+/* High contrast support */
+@media (prefers-contrast: high) {
+  .project-card,
+  .btn-primary,
+  .btn-secondary {
+    border: 2px solid currentColor;
+  }
 }
 
-.navbar-mobile-toggle span {
-  width: 20px;
-  height: 2px;
-  background: #374151;
-  border-radius: 1px;
-  transition: all 0.3s ease;
+/* Focus improvements */
+:focus-visible {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
 }
 
-/* Mobile menu stability */
-.navbar-mobile-menu {
-  position: fixed;
-  top: 80px;
-  left: 0;
-  right: 0;
-  background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  transform: translateY(-100%);
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
-  z-index: 999;
+/* Reduce layout shifts */
+main {
+  isolation: isolate;
 }
 
-.navbar-mobile-menu.open {
-  transform: translateY(0);
-  opacity: 1;
-  visibility: visible;
-}
-
-.navbar-mobile-menu-content {
-  padding: 30px 40px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.navbar-mobile-menu-item {
-  color: #6b7280;
-  font-size: 16px;
-  font-weight: 500;
-  text-decoration: none;
-  padding: 12px 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  transition: all 0.3s ease;
-}
-
-.navbar-mobile-menu-item:hover {
-  color: #000;
-  transform: translateX(5px);
-}
-
-/* Prevent layout shift during font loading */
-@font-face {
-  font-family: 'Poppins';
-  font-style: normal;
-  font-weight: 400;
+/* Optimize web fonts */
+.font-display-swap {
   font-display: swap;
-  src: url('https://fonts.gstatic.com/s/poppins/v20/pxiEyp8kv8JHgFVrJJfecg.woff2') format('woff2');
 }
 
-@font-face {
-  font-family: 'Poppins';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url('https://fonts.gstatic.com/s/poppins/v20/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: 'Poppins';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url('https://fonts.gstatic.com/s/poppins/v20/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: 'Poppins';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('https://fonts.gstatic.com/s/poppins/v20/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2') format('woff2');
-}
-
-/* Smooth scrolling disabled by default - let GSAP handle it */
-html {
-  scroll-behavior: auto;
-}
-
-/* Body margin reset to prevent layout shift */
-body {
-  margin: 0 !important;
-  padding: 0 !important;
+/* Performance monitoring class */
+.perf-monitor {
+  contain: strict;
+  content-visibility: auto;
 }
