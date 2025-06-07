@@ -1,5 +1,5 @@
 ---
-// src/pages/projects.astro - Updated with slideshow
+// src/pages/projects.astro - Optimized version with performance improvements
 import Layout from '../layouts/Layout.astro';
 import Navigation from '../components/Navigation.tsx';
 import ProjectsList from '../components/ProjectsList.tsx';
@@ -12,60 +12,61 @@ const currentPath = Astro.url.pathname;
 const emaarProjects = projects.filter(p => p.location === 'Emaar');
 const hmrProjects = projects.filter(p => p.location === 'HMR');
 
-// Import slideshow images dynamically
-const slideshowImages = await Astro.glob('../assets/projects/slideshow/*.{webp,jpg,jpeg,png}');
+// Use import.meta.glob instead of Astro.glob
+const slideshowImageImports = import.meta.glob('../assets/projects/slideshow/*.{webp,jpg,jpeg,png}', { eager: true });
+const slideshowImages = Object.values(slideshowImageImports);
 
-// Format images for the slideshow component
-const formattedSlideshowImages = slideshowImages.map((img, index) => ({
-  src: img.default.src || img.default,
-  alt: `Project Slideshow Image ${index + 1}`
-}));
+// Format and optimize images for the slideshow component
+const formattedSlideshowImages = slideshowImages
+  .slice(0, 5) // Limit to 5 images for better performance
+  .map((img: any, index: number) => ({
+    src: img.default.src || img.default,
+    alt: `Project Slideshow Image ${index + 1}`
+  }));
 ---
 
 <Layout title="Projects - BYG">
   <Navigation currentPath={currentPath} client:load />
   
-  
-  <!-- Slideshow Section - Below Navbar -->
   <section class="w-full mt-20">
     <ProjectsSlideshow 
       images={formattedSlideshowImages}
-      autoPlayInterval={2000}
+      autoPlayInterval={3000}
       showDots={true}
       showArrows={false}
       height="60vh"
-      client:load 
+      client:visible
     />
   </section>
   
-  <!-- Main Projects Content -->
   <main class="pt-0">
     <ProjectsList 
       projects={projects}
       emaarProjects={emaarProjects}
       hmrProjects={hmrProjects}
-      client:load 
+      client:idle
     />
   </main>
 </Layout>
 
 <style>
-  /* Ensure smooth scrolling without conflicts */
+  /* Critical CSS only */
   html {
-    scroll-behavior: auto; /* Let GSAP handle smooth scrolling */
+    scroll-behavior: auto;
   }
   
-  /* Prevent layout shifts during loading */
   main {
     min-height: 100vh;
+    contain: layout style paint;
   }
   
-  /* Optimize for performance */
-  * {
-    will-change: auto;
+  /* Preload optimization */
+  .slideshow-container {
+    contain: layout style paint;
+    content-visibility: auto;
   }
   
-  /* Reduce motion for users who prefer it */
+  /* Performance optimizations */
   @media (prefers-reduced-motion: reduce) {
     * {
       animation-duration: 0.01ms !important;
@@ -73,27 +74,34 @@ const formattedSlideshowImages = slideshowImages.map((img, index) => ({
       transition-duration: 0.01ms !important;
     }
   }
-
-  /* Slideshow specific optimizations */
-  .slideshow-container {
-    contain: layout style paint;
-  }
 </style>
 
-<script>
-  // Prevent the main TypeScript animations from running on projects page
-  // This ensures no conflicts between React components and TS scroll handlers
-  
-  // Remove any existing scroll listeners from main.ts
+<script lang="ts" is:inline>
+  // Optimized script with performance improvements
   if (typeof window !== 'undefined') {
-    // Clean up any existing main.ts scroll listeners
-    const existingHandlers = (window as any).__scrollHandlers || [];
-    existingHandlers.forEach((handler: EventListener) => {
-      window.removeEventListener('scroll', handler);
+    // Defer non-critical operations
+    requestIdleCallback(() => {
+      // Clean up any existing scroll listeners from main.ts
+      const existingHandlers = (window as any).__scrollHandlers || [];
+      existingHandlers.forEach((handler: EventListener) => {
+        window.removeEventListener('scroll', handler);
+      });
+      (window as any).__scrollHandlers = [];
+      
+      // Mark this page as projects page to prevent main.ts initialization
+      (window as any).__isProjectsPage = true;
     });
-    (window as any).__scrollHandlers = [];
     
-    // Mark this page as projects page to prevent main.ts initialization
-    (window as any).__isProjectsPage = true;
+    // Optimize scroll performance
+    let scrollTimeout: number; // Use 'number' for browser environments
+    window.addEventListener('scroll', () => {
+      // Add scrolling class for performance optimizations
+      document.body.classList.add('is-scrolling');
+      
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        document.body.classList.remove('is-scrolling');
+      }, 150);
+    }, { passive: true });
   }
 </script>
