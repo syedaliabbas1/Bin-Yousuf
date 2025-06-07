@@ -12,23 +12,22 @@ const currentPath = Astro.url.pathname;
 const emaarProjects = projects.filter(p => p.location === 'Emaar');
 const hmrProjects = projects.filter(p => p.location === 'HMR');
 
-// Import slideshow images dynamically with optimization
-const slideshowImages = await Astro.glob('../assets/projects/slideshow/*.{webp,jpg,jpeg,png}');
+// Use import.meta.glob instead of Astro.glob
+const slideshowImageImports = import.meta.glob('../assets/projects/slideshow/*.{webp,jpg,jpeg,png}', { eager: true });
+const slideshowImages = Object.values(slideshowImageImports);
 
 // Format and optimize images for the slideshow component
 const formattedSlideshowImages = slideshowImages
   .slice(0, 5) // Limit to 5 images for better performance
-  .map((img, index) => ({
+  .map((img: any, index: number) => ({
     src: img.default.src || img.default,
     alt: `Project Slideshow Image ${index + 1}`
   }));
 ---
 
 <Layout title="Projects - BYG">
-  <!-- Navigation with optimized loading -->
   <Navigation currentPath={currentPath} client:load />
   
-  <!-- Slideshow Section with lazy loading -->
   <section class="w-full mt-20">
     <ProjectsSlideshow 
       images={formattedSlideshowImages}
@@ -40,7 +39,6 @@ const formattedSlideshowImages = slideshowImages
     />
   </section>
   
-  <!-- Main Projects Content with optimized loading -->
   <main class="pt-0">
     <ProjectsList 
       projects={projects}
@@ -51,7 +49,6 @@ const formattedSlideshowImages = slideshowImages
   </main>
 </Layout>
 
-<!-- Optimized inline styles -->
 <style>
   /* Critical CSS only */
   html {
@@ -79,7 +76,7 @@ const formattedSlideshowImages = slideshowImages
   }
 </style>
 
-<script>
+<script lang="ts" is:inline>
   // Optimized script with performance improvements
   if (typeof window !== 'undefined') {
     // Defer non-critical operations
@@ -96,7 +93,7 @@ const formattedSlideshowImages = slideshowImages
     });
     
     // Optimize scroll performance
-    let scrollTimeout: NodeJS.Timeout;
+    let scrollTimeout: number; // Use 'number' for browser environments
     window.addEventListener('scroll', () => {
       // Add scrolling class for performance optimizations
       document.body.classList.add('is-scrolling');
